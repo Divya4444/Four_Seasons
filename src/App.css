@@ -364,6 +364,32 @@ body::before {
   font-size: 1.2rem;
 }
 
+.location-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.location-button:hover {
+  background-color: #357abd;
+}
+
+.location-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .app {
     padding: 1rem;

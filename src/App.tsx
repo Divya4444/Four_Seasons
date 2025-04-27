@@ -36,6 +36,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId] = useState(() => crypto.randomUUID());
+  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   useEffect(() => {
     // Initialize tracking
@@ -88,6 +90,48 @@ function App() {
     return "Winter's quiet beauty awaits";
   };
 
+  const getCurrentLocation = async () => {
+    setIsLocating(true);
+    try {
+      if (!navigator.geolocation) {
+        throw new Error('Geolocation is not supported by your browser');
+      }
+
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const { latitude, longitude } = position.coords;
+      
+      // Use Google Maps Geocoding API to get city name
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+      );
+      
+      const data = await response.json();
+      
+      if (data.results && data.results.length > 0) {
+        const addressComponents = data.results[0].address_components;
+        const cityComponent = addressComponents.find(
+          (component: any) => component.types.includes('locality')
+        );
+        
+        if (cityComponent) {
+          const cityName = cityComponent.long_name;
+          setCurrentLocation(cityName);
+          setLocation(cityName);
+          // Automatically trigger the search
+          await handleSubmit(new Event('submit') as any);
+        }
+      }
+    } catch (err) {
+      console.error('Error getting location:', err);
+      setError('Unable to get your current location. Please enter it manually.');
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -107,6 +151,17 @@ function App() {
           />
           <button type="submit" disabled={loading}>
             {loading ? 'Discovering...' : 'Find Seasonal Wonders'}
+          </button>
+          
+          <button 
+            type="button" 
+            onClick={getCurrentLocation}
+            disabled={isLocating}
+            className="location-button"
+          >
+            {isLocating 
+              ? 'Detecting Location...' 
+              : `Search My Location: ${currentLocation || 'Click to Detect'}`}
           </button>
         </form>
 

@@ -1,310 +1,195 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { geminiClient } from './butterflyClient';
+import { Recommendation } from '../App';
 
-// Types for our preferences
-export type ActivityType = 'grocery' | 'food' | 'leisure';
-export type Interest = 'outdoors' | 'food' | 'events' | 'relaxation';
-export type WorkflowType = 'personal' | 'business' | 'hybrid';
 
-// DAIN platform integration types
-export interface DAINAnalytics {
-  sessionId: string;
-  userId: string;
-  deviceType: 'mobile' | 'desktop' | 'tablet';
-  timestamp: string;
-  engagementScore: number;
-  conversationHistory: Array<{
-    role: 'user' | 'assistant';
-    content: string;
-    timestamp: string;
-    workflowType: WorkflowType;
-    taskStatus: 'pending' | 'in-progress' | 'completed' | 'failed';
-  }>;
-  workflowMetrics: {
-    tasksCompleted: number;
-    averageCompletionTime: number;
-    successRate: number;
-    userSatisfaction: number;
-  };
-}
+export async function getAdventureRecommendations(userId: string, location: string): Promise<Recommendation[]> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('Gemini API key is not configured. Please check your .env file.');
+  }
 
-export interface DAINMonetization {
-  tier: 'free' | 'premium' | 'enterprise';
-  creditsUsed: number;
-  revenueGenerated: number;
-  conversionRate: number;
-  subscriptionStatus: 'active' | 'trial' | 'expired';
-  pricingModel: {
-    basePrice: number;
-    usageBased: boolean;
-    featureTiers: string[];
-  };
-}
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const imageModel = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
 
-export interface DAINBusinessMetrics {
-  customerLifetimeValue: number;
-  averageOrderValue: number;
-  retentionRate: number;
-  churnRate: number;
-  marketPenetration: number;
-  competitivePosition: string;
-  growthMetrics: {
-    monthlyActiveUsers: number;
-    userAcquisitionCost: number;
-    viralCoefficient: number;
-  };
-}
+  const prompt = `Generate exactly 3 unique adventure recommendations for ${location}. 
+  For each recommendation, provide a JSON object with these exact properties:
+  {
+    "title": "string",
+    "description": "string",
+    "activities": ["string"],
+    "estimatedDuration": "string (e.g., '2-3 hours', 'Full day', 'Half day')",
+    "carbonFootprint": "string",
+    "ecoFriendlyTips": ["string"],
+    "estimatedCost": "string",
+    "imagePrompt": "string (e.g., 'Beautiful scene of [location] during [season], highlighting [key features]')",
+    "waypoints": [
+      {
+        "name": "string (e.g., 'Central Park')",
+        "type": "attraction" | "restaurant",
+        "description": "string (e.g., 'Beautiful urban park with seasonal flowers')",
+        "estimatedDuration": "string (e.g., '1 hour', '30 minutes')",
+        "seasonal": boolean,
+        "seasonalDetails": "string (e.g., 'Best in spring for cherry blossoms')",
+        "seasonalImagePrompt": "string (e.g., 'Central Park in spring with cherry blossoms, peaceful scene, soft lighting')"
+      }
+    ],
+    "localPartners": ["string"],
+    "automationOptions": {
+      "autoBooking": boolean,
+      "groupCoordination": boolean
+    },
+    "greenBusinesses": [
+      {
+        "name": "string (e.g., 'Green Valley Farmers Market')",
+        "type": "farmers-market" | "bike-rental" | "eco-tour" | "sustainable-shop",
+        "certification": "string (e.g., 'Certified Organic')",
+        "discount": "string (e.g., '10% off for bringing reusable bags')",
+        "description": "string (e.g., 'Local organic produce market')",
+        "location": "string (e.g., '123 Green St, ${location}')"
+      }
+    ]
+  }
 
-export interface DAINWorkflow {
-  id: string;
-  type: WorkflowType;
-  steps: Array<{
-    id: string;
-    description: string;
-    status: 'pending' | 'in-progress' | 'completed' | 'failed';
-    dependencies: string[];
-    estimatedTime: number;
-    actualTime?: number;
-  }>;
-  priority: 'low' | 'medium' | 'high';
-  deadline?: string;
-  assignedTo?: string;
-}
+  For waypoints, include:
+  1. At least 3-5 key attractions or points of interest
+  2. 1-2 restaurants or food stops
+  3. Seasonal highlights and timing
+  4. Estimated time at each location
+  5. Brief descriptions of each stop
+  6. A detailed image prompt for each seasonal waypoint
 
-export interface AdventurePreferences {
-  location: string;
-  activityType: ActivityType;
-  interests: Interest[];
-  // DAIN platform fields
-  analytics: DAINAnalytics;
-  monetization: DAINMonetization;
-  businessMetrics: DAINBusinessMetrics;
-  workflow: DAINWorkflow;
-  // Business integration fields
-  budget?: number;
-  groupSize?: number;
-  specialRequirements?: string[];
-  conversationContext?: string;
-  // Autonomous assistance fields
-  automationLevel: 'basic' | 'advanced' | 'full';
-  integrationPreferences: {
-    calendar: boolean;
-    email: boolean;
-    messaging: boolean;
-    payment: boolean;
-  };
-}
+  For each recommendation, include:
+  1. A compelling title and description
+  2. A detailed image prompt that captures the essence of the adventure
+  3. Seasonal highlights and activities
+  4. Environmental impact and eco-friendly tips
 
-export interface AdventureRecommendation {
-  title: string;
-  description: string;
-  activities: string[];
-  estimatedDuration: string;
-  carbonFootprint: string;
-  ecoFriendlyTips: string[];
-  estimatedCost: string;
-  bookingLink?: string;
-  localPartners: string[];
-  premiumFeatures: string[];
-  automationOptions: {
-    autoBooking: boolean;
-    paymentProcessing: boolean;
-    reminderSetup: boolean;
-    groupCoordination: boolean;
-  };
-  followUpQuestions?: string[];
-  personalizedTips?: string[];
-  nextSteps?: Array<{
-    action: string;
-    priority: 'low' | 'medium' | 'high';
-    estimatedTime: number;
-    automationAvailable: boolean;
-  }>;
-}
+  Return ONLY a valid JSON array of recommendations, with no additional text or markdown formatting.`;
 
-// Get API key from environment variables
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!apiKey) {
-  throw new Error('Gemini API key is not configured. Please check your .env file.');
-}
-
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// DAIN platform analytics helper
-function createDAINAnalytics(userId: string = 'anonymous'): DAINAnalytics {
-  return {
-    sessionId: crypto.randomUUID(),
-    userId,
-    deviceType: 'desktop',
-    timestamp: new Date().toISOString(),
-    engagementScore: 0.85,
-    conversationHistory: [],
-    workflowMetrics: {
-      tasksCompleted: 0,
-      averageCompletionTime: 0,
-      successRate: 1.0,
-      userSatisfaction: 0.9
-    }
-  };
-}
-
-// DAIN platform monetization helper
-function createDAINMonetization(): DAINMonetization {
-  return {
-    tier: 'free',
-    creditsUsed: 1,
-    revenueGenerated: 0,
-    conversionRate: 0.15,
-    subscriptionStatus: 'trial',
-    pricingModel: {
-      basePrice: 0,
-      usageBased: true,
-      featureTiers: ['basic', 'premium', 'enterprise']
-    }
-  };
-}
-
-// DAIN business metrics helper
-function createDAINBusinessMetrics(): DAINBusinessMetrics {
-  return {
-    customerLifetimeValue: 0,
-    averageOrderValue: 0,
-    retentionRate: 0.85,
-    churnRate: 0.15,
-    marketPenetration: 0.1,
-    competitivePosition: 'emerging',
-    growthMetrics: {
-      monthlyActiveUsers: 0,
-      userAcquisitionCost: 0,
-      viralCoefficient: 0
-    }
-  };
-}
-
-// DAIN workflow helper
-function createDAINWorkflow(): DAINWorkflow {
-  return {
-    id: crypto.randomUUID(),
-    type: 'personal',
-    steps: [],
-    priority: 'medium'
-  };
-}
-
-// Default integration preferences
-const defaultIntegrationPreferences = {
-  calendar: false,
-  email: false,
-  messaging: false,
-  payment: false
-};
-
-export async function getAdventureRecommendations(
-  userId: string,
-  location: string
-): Promise<AdventureRecommendation[]> {
   try {
-    if (!import.meta.env.VITE_GEMINI_API_KEY) {
-      throw new Error('Gemini API key is not configured');
-    }
-
-    // Track user interaction
-    await geminiClient.trackUserInteraction(userId, {
-      type: 'location_search',
-      details: { location }
-    });
-
-    const currentTime = new Date();
-    const isWeekend = currentTime.getDay() === 0 || currentTime.getDay() === 6;
-    const isEvening = currentTime.getHours() >= 17;
-    const currentMonth = currentTime.getMonth() + 1;
-
-    const prompt = `Generate 3 unique outdoor adventure recommendations for ${location} that highlight seasonal natural phenomena. 
-For each recommendation, provide:
-
-1. Title and Description: A captivating title and detailed description of the experience
-2. Activities: 3-5 specific activities or viewing tips
-3. Timing: Best time to experience (including specific months or conditions)
-4. Environmental Impact:
-   - Carbon footprint estimate
-   - Specific ways this activity helps the environment
-   - Local conservation efforts it supports
-   - How it contributes to biodiversity
-5. Community Impact:
-   - Local businesses and artisans supported
-   - Cultural heritage preserved
-   - Community initiatives benefited
-   - Educational opportunities created
-6. Health Benefits:
-   - Physical health improvements
-   - Mental wellness aspects
-   - Stress reduction elements
-   - Connection with nature benefits
-7. Sustainable Practices:
-   - Leave No Trace principles specific to this location
-   - Eco-friendly transportation options
-   - Waste reduction strategies
-   - Resource conservation tips
-8. Booking: Optional booking link for guided experiences
-
-Format the response as a JSON array with these properties:
-{
-  "title": string,
-  "description": string,
-  "activities": string[],
-  "estimatedDuration": string,
-  "carbonFootprint": string,
-  "ecoFriendlyTips": string[],
-  "localPartners": string[],
-  "healthBenefits": string[],
-  "personalizedTips": string[],
-  "nextSteps": Array<{
-    "action": string,
-    "priority": "low" | "medium" | "high",
-    "estimatedTime": number,
-    "automationAvailable": boolean
-  }>,
-  "bookingLink"?: string
-}
-
-Focus on creating recommendations that:
-- Showcase unique seasonal aspects of ${location}
-- Highlight sustainable tourism practices
-- Support local communities and conservation
-- Promote physical and mental well-being
-- Educate about environmental stewardship
-- Create meaningful connections with nature`;
-
-    const response = await geminiClient.generateRecommendation(prompt);
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
     
-    // Clean the response to ensure valid JSON
-    const cleanedResponse = response
-      .trim()
-      .replace(/^```json\s*/, '')
-      .replace(/```\s*$/, '')
-      .replace(/^\s*\[/, '[')
-      .replace(/\]\s*$/, ']');
+    console.log('Raw Gemini response:', text);
+    
+    // Clean the response to handle markdown code blocks and ensure valid JSON
+    let cleanedText = text
+      .replace(/```json\s*/g, '')  
+      .replace(/```\s*$/g, '')    
+      .replace(/```\s*$/g, '')    
+      .replace(/^\s*\[/, '[')      
+      .replace(/\]\s*$/, ']')      
+      .replace(/\n/g, ' ')         
+      .replace(/\s+/g, ' ')        
+      .trim();
 
+    // Try to find the JSON array in the response
+    const jsonMatch = cleanedText.match(/\[.*\]/);
+    if (jsonMatch) {
+      cleanedText = jsonMatch[0];
+    }
+    
+    console.log('Cleaned response:', cleanedText); 
+    
+    let recommendations: Recommendation[];
     try {
-      const recommendations = JSON.parse(cleanedResponse) as AdventureRecommendation[];
-      
-      if (!Array.isArray(recommendations) || recommendations.length < 3 || recommendations.length > 5) {
-        throw new Error('Invalid number of recommendations received');
+      recommendations = JSON.parse(cleanedText) as Recommendation[];
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Problematic text:', cleanedText);
+      throw new Error('Failed to parse recommendations JSON. Please try again.');
+    }
+    
+    if (!Array.isArray(recommendations) || recommendations.length === 0) {
+      throw new Error('Invalid recommendations format received');
+    }
+    
+    // Generate images for recommendations and their waypoints
+    for (const recommendation of recommendations) {
+      // Generate main recommendation image
+      if (recommendation.imagePrompt) {
+        try {
+          const imagePrompt = `Generate a beautiful, realistic image of: ${recommendation.imagePrompt}. The image should be high quality and show the location during the current season. Focus on the natural beauty and seasonal elements.`;
+          console.log('Generating image with prompt:', imagePrompt);
+          
+          const imageResult = await imageModel.generateContent({
+            contents: [{
+              role: "user",
+              parts: [{
+                text: imagePrompt
+              }]
+            }]
+          });
+          
+          const imageResponse = await imageResult.response;
+          console.log('Image response:', imageResponse);
+          
+          if (imageResponse.candidates && imageResponse.candidates.length > 0) {
+            const imageData = imageResponse.candidates[0].content.parts[0].text;
+            if (imageData) {
+              recommendation.image = `data:image/jpeg;base64,${imageData}`;
+              console.log('Successfully generated image for recommendation:', recommendation.title);
+            } else {
+              console.warn('No image data in response for recommendation:', recommendation.title);
+              recommendation.image = undefined;
+            }
+          } else {
+            console.warn('No image candidates found for recommendation:', recommendation.title);
+            recommendation.image = undefined;
+          }
+        } catch (error) {
+          console.error('Error generating image for recommendation:', recommendation.title, error);
+          recommendation.image = undefined;
+        }
       }
 
-      // Track recommendations
-      await geminiClient.trackRecommendation(userId, recommendations);
-
-      return recommendations;
-    } catch (parseError) {
-      console.error('Error parsing response:', parseError);
-      console.error('Raw response:', response);
-      throw new Error('Failed to parse recommendations. Please try again.');
+      // Generate images for seasonal waypoints
+      for (const waypoint of recommendation.waypoints) {
+        if (waypoint.seasonal && waypoint.seasonalImagePrompt) {
+          try {
+            const imagePrompt = `Generate a beautiful, realistic image of: ${waypoint.seasonalImagePrompt}. The image should be high quality and show the location during its peak season. Focus on the seasonal elements and natural beauty.`;
+            console.log('Generating image for waypoint:', waypoint.name, 'with prompt:', imagePrompt);
+            
+            const imageResult = await imageModel.generateContent({
+              contents: [{
+                role: "user",
+                parts: [{
+                  text: imagePrompt
+                }]
+              }]
+            });
+            
+            const imageResponse = await imageResult.response;
+            console.log('Waypoint image response:', imageResponse);
+            
+            if (imageResponse.candidates && imageResponse.candidates.length > 0) {
+              const imageData = imageResponse.candidates[0].content.parts[0].text;
+              if (imageData) {
+                waypoint.seasonalImage = `data:image/jpeg;base64,${imageData}`;
+                console.log('Successfully generated image for waypoint:', waypoint.name);
+              } else {
+                console.warn('No image data in response for waypoint:', waypoint.name);
+                waypoint.seasonalImage = undefined;
+              }
+            } else {
+              console.warn('No image candidates found for waypoint:', waypoint.name);
+              waypoint.seasonalImage = undefined;
+            }
+          } catch (error) {
+            console.error('Error generating image for waypoint:', waypoint.name, error);
+            waypoint.seasonalImage = undefined;
+          }
+        }
+      }
     }
+    
+    return recommendations;
   } catch (error) {
-    console.error('Error getting recommendations:', error);
+    console.error('Error generating recommendations:', error);
     throw error;
   }
 }
-  
+ 

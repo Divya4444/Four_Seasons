@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 export interface AdventureRecommendation {
   title: string;
   description: string;
@@ -91,43 +92,27 @@ export default function AdventureRecommendations({
                       {recommendation.ecoFriendlyTips.map((tip, i) => (
                         <li key={i} className="flex items-start">
                           <span className="text-green-500 mr-2">•</span>
-                          <span className="text-green-700">{tip}</span>
+                          <span className="text-green-700">
+                            {tip.includes('hot day') || tip.includes('pollen season') || tip.includes('Rainy day') || tip.includes('Cold weather') || tip.includes('UV index') ? (
+                              <span className="font-medium text-green-800">{tip}</span>
+                            ) : (
+                              tip
+                            )}
+                          </span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {recommendation.sources && recommendation.sources.length > 0 && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium text-gray-500 mb-2">📚 Sources</h4>
-                    <div className="space-y-2">
-                      {recommendation.sources.map((source, i) => (
-                        <a
-                          key={i}
-                          href={source}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block text-sm text-blue-600 hover:text-blue-800 truncate"
-                        >
-                          🔗 {source}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                
+
+                
 
                 {recommendation.localTips && recommendation.localTips.length > 0 && (
                   <div className="mt-4 bg-blue-50 rounded-lg p-4">
                     <h4 className="text-sm font-medium text-blue-800 mb-2">💬 Local Tips from Reddit</h4>
-                    <ul className="space-y-2">
-                      {recommendation.localTips.map((tip, i) => (
-                        <li key={i} className="flex items-start">
-                          <span className="text-blue-500 mr-2">•</span>
-                          <span className="text-blue-700 italic">"{tip}"</span>
-                        </li>
-                      ))}
-                    </ul>
+                    
                   </div>
                 )}
               </div>

@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getAdventureRecommendations } from './utils/geminiApi';
-import { geminiClient } from './utils/butterflyClient';
-import { ExperienceFeedback } from './components/ExperienceFeedback';
-import { ExperienceGallery } from './components/ExperienceGallery';
 import './App.css';
 
-interface Recommendation {
+export interface Recommendation {
   title: string;
   description: string;
   activities: string[];
@@ -13,8 +10,19 @@ interface Recommendation {
   carbonFootprint: string;
   ecoFriendlyTips: string[];
   estimatedCost: string;
+  imagePrompt?: string;
+  image?: string;
+  waypoints: Array<{
+    name: string;
+    type: 'attraction' | 'restaurant';
+    description: string;
+    estimatedDuration: string;
+    seasonal: boolean;
+    seasonalDetails?: string;
+    seasonalImagePrompt?: string;
+    seasonalImage?: string;
+  }>;
   bookingLink?: string;
-  localPartners: string[];
   premiumFeatures: string[];
   automationOptions: {
     autoBooking: boolean;
@@ -30,16 +38,25 @@ interface Recommendation {
     estimatedTime: number;
     automationAvailable: boolean;
   }>;
-  healthBenefits?: string[];
+  greenBusinesses?: Array<{
+    name: string;
+    type: 'farmers-market' | 'bike-rental' | 'eco-tour' | 'sustainable-shop';
+    certification: string;
+    discount: string;
+    description: string;
+    location: string;
+  }>;
 }
 
-interface Feedback {
-  images: File[];
-  description: string;
-  weather: string;
-  crowdLevel: 'low' | 'medium' | 'high';
-  tips: string;
-  timestamp: string;
+interface PlanDetails {
+  startingTime: string;
+  waypoints: Array<{
+    name: string;
+    type: 'attraction' | 'restaurant';
+    description: string;
+    estimatedDuration: string;
+    seasonal: boolean;
+  }>;
 }
 
 function App() {
@@ -48,49 +65,36 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId] = useState(() => crypto.randomUUID());
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
-  const [currentLocation, setCurrentLocation] = useState<string | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
-
-  useEffect(() => {
-    // Initialize tracking
-    geminiClient.trackUserInteraction(userId, {
-      type: 'app_initialized',
-      details: { timestamp: new Date().toISOString() }
-    });
-  }, [userId]);
+  const [selectedPlan, setSelectedPlan] = useState<{ recommendation: Recommendation; details: PlanDetails } | null>(null);
+  const [savedPlans, setSavedPlans] = useState<{ recommendation: Recommendation; details: PlanDetails }[]>([]);
+  const [shareLink, setShareLink] = useState<string | null>(null);
+  const [travelDuration, setTravelDuration] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!location.trim()) {
+      setError('Please enter a location');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setRecommendations([]);
 
     try {
-      // Track form submission
-      await geminiClient.trackUserInteraction(userId, {
-        type: 'form_submitted',
-        details: { location }
-      });
-
+      console.log('Fetching recommendations for location:', location);
       const recs = await getAdventureRecommendations(userId, location);
+      console.log('Received recommendations:', recs);
+      
+      if (!recs || recs.length === 0) {
+        throw new Error('No recommendations found for this location');
+      }
+      
       setRecommendations(recs);
-
-      // Track successful recommendations
-      await geminiClient.trackUserInteraction(userId, {
-        type: 'recommendations_received',
-        details: { count: recs.length }
-      });
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error in handleSubmit:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate recommendations');
-
-      // Track error
-      await geminiClient.trackUserInteraction(userId, {
-        type: 'error_occurred',
-        details: { error: err instanceof Error ? err.message : 'Unknown error' }
-      });
+      setRecommendations([]);
     } finally {
       setLoading(false);
     }
@@ -104,83 +108,248 @@ function App() {
     return "Winter's quiet beauty awaits";
   };
 
-  const handleFeedbackSubmit = (feedback: Feedback) => {
-    setFeedbacks([...feedbacks, feedback]);
+  const handleSelectPlan = (recommendation: Recommendation) => {
+    setSelectedPlan({
+      recommendation,
+      details: {
+        startingTime: new Date().toISOString().slice(0, 16), // Current date and time
+        waypoints: []
+      }
+    });
   };
 
-  const getCurrentLocation = async () => {
-    setIsLocating(true);
+  const handleSavePlan = () => {
+    if (!selectedPlan) return;
+    
+    const newSavedPlans = [...savedPlans, selectedPlan];
+    setSavedPlans(newSavedPlans);
+    
+    // Save to localStorage
+    localStorage.setItem('savedPlans', JSON.stringify(newSavedPlans));
+    
+    // Show success message
+    alert('Plan saved successfully!');
+  };
+
+  const handleSharePlan = async () => {
+    if (!selectedPlan) return;
+    
     try {
-      if (!navigator.geolocation) {
-        throw new Error('Geolocation is not supported by your browser');
+      // Create a shareable link
+      const planData = {
+        recommendation: selectedPlan.recommendation,
+        details: selectedPlan.details,
+        timestamp: new Date().toISOString()
+      };
+      
+      // In a real app, you would send this to your backend to generate a shareable link
+      // For now, we'll create a local shareable link
+      const shareableData = btoa(JSON.stringify(planData));
+      const shareLink = `${window.location.origin}/share/${shareableData}`;
+      
+      setShareLink(shareLink);
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(shareLink);
+      alert('Share link copied to clipboard!');
+    } catch (error) {
+      console.error('Error sharing plan:', error);
+      alert('Failed to share plan. Please try again.');
+    }
+  };
+
+  const calculateTravelDuration = async (origin: string, destination: string) => {
+    if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+      console.warn('Google Maps API key not found');
+      return null;
+    }
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch travel duration');
       }
 
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      });
-
-      const { latitude, longitude } = position.coords;
-      
-      // Use Google Maps Geocoding API to get city name
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`
-      );
-      
       const data = await response.json();
       
-      if (data.results && data.results.length > 0) {
-        const addressComponents = data.results[0].address_components;
-        const cityComponent = addressComponents.find(
-          (component: any) => component.types.includes('locality')
-        );
-        
-        if (cityComponent) {
-          const cityName = cityComponent.long_name;
-          setCurrentLocation(cityName);
-          setLocation(cityName);
-          // Automatically trigger the search
-          await handleSubmit(new Event('submit') as any);
-        }
+      if (data.rows[0]?.elements[0]?.duration) {
+        return data.rows[0].elements[0].duration.text;
       }
-    } catch (err) {
-      console.error('Error getting location:', err);
-      setError('Unable to get your current location. Please enter it manually.');
-    } finally {
-      setIsLocating(false);
+      
+      return null;
+    } catch (error) {
+      console.error('Error calculating travel duration:', error);
+      return null;
     }
+  };
+
+  const handleLocationChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newLocation = e.target.value;
+    setLocation(newLocation);
+
+    if (selectedPlan && newLocation) {
+      const firstWaypoint = selectedPlan.recommendation.waypoints[0];
+      if (firstWaypoint) {
+        const duration = await calculateTravelDuration(newLocation, firstWaypoint.name);
+        setTravelDuration(duration);
+      }
+    }
+  };
+
+  const PlanDetailsView = () => {
+    if (!selectedPlan) return null;
+
+    return (
+      <div className="plan-details">
+        <div className="plan-header">
+          <h2>Plan Your Adventure</h2>
+          <button className="close-button" onClick={() => setSelectedPlan(null)}>×</button>
+        </div>
+        
+        <div className="plan-content">
+          <div className="location-section">
+            <h3>Starting Location</h3>
+            <div className="location-input">
+              <input
+                type="text"
+                value={location}
+                onChange={handleLocationChange}
+                placeholder="Enter your starting location"
+              />
+            </div>
+            {travelDuration && (
+              <div className="travel-info">
+                <p>Travel time to first destination: <span className="travel-duration">{travelDuration}</span></p>
+              </div>
+            )}
+          </div>
+
+          <div className="time-section">
+            <h3>Starting Time</h3>
+            <input
+              type="datetime-local"
+              value={selectedPlan.details.startingTime}
+              onChange={(e) => setSelectedPlan({
+                ...selectedPlan,
+                details: {
+                  ...selectedPlan.details,
+                  startingTime: e.target.value
+                }
+              })}
+            />
+          </div>
+
+          <div className="timeline-section">
+            <h3>Adventure Timeline</h3>
+            <div className="timeline">
+              {selectedPlan.recommendation.waypoints.map((waypoint, index) => (
+                <div key={index} className="timeline-item">
+                  <div className="timeline-marker"></div>
+                  <div className="timeline-content">
+                    <div className="waypoint-header">
+                      <h4>{waypoint.name}</h4>
+                      <div className="waypoint-meta">
+                        <span className="type-badge">{waypoint.type}</span>
+                        <span className="duration">{waypoint.estimatedDuration}</span>
+                        {waypoint.seasonal && <span className="seasonal-badge">Seasonal</span>}
+                      </div>
+                    </div>
+                    {waypoint.seasonalImage && (
+                      <div className="waypoint-image">
+                        <img 
+                          src={waypoint.seasonalImage} 
+                          alt={`${waypoint.name} in season`}
+                          className="seasonal-image"
+                        />
+                      </div>
+                    )}
+                    <p className="waypoint-description">{waypoint.description}</p>
+                    {waypoint.seasonalDetails && (
+                      <p className="seasonal-details">{waypoint.seasonalDetails}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="plan-actions">
+            <button 
+              className="save-plan" 
+              onClick={handleSavePlan}
+              disabled={savedPlans.some(plan => 
+                plan.recommendation.title === selectedPlan.recommendation.title
+              )}
+            >
+              {savedPlans.some(plan => 
+                plan.recommendation.title === selectedPlan.recommendation.title
+              ) ? 'Already Saved' : 'Save Plan'}
+            </button>
+            <button 
+              className="share-plan" 
+              onClick={handleSharePlan}
+            >
+              Share Plan
+            </button>
+          </div>
+
+          {shareLink && (
+            <div className="share-link-container">
+              <p>Share this link with others:</p>
+              <div className="share-link">
+                <input 
+                  type="text" 
+                  value={shareLink} 
+                  readOnly 
+                  className="share-link-input"
+                />
+                <button 
+                  className="copy-link-button"
+                  onClick={() => navigator.clipboard.writeText(shareLink)}
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>4 Seasons</h1>
-        <p>{getSeasonalGreeting()}. Let's discover the seasonal wonders around you.</p>
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <img 
+            src="/images/C1192866-220A-4144-B7B1-AB21C7BD784B.png" 
+            alt="Four Seasons Logo" 
+            className="h-48 w-48 object-contain mb-2"
+          />
+          <div className="text-center">
+            <p className="text-lg text-gray-600 !font-bold">{getSeasonalGreeting()}. Let's discover the seasonal wonders around you. Where would you like to explore nature's seasonal magic?</p>
+          </div>
+        </div>
       </header>
 
-      <main>
+      <main className="flex-1">
         <form onSubmit={handleSubmit} className="location-form">
-          <h2>Where would you like to explore nature's seasonal magic?</h2>
-          <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            placeholder="What's up with you?"
-            required
-          />
-          <button type="submit" disabled={loading}>
-            {loading ? 'Discovering...' : 'Find Seasonal Wonders'}
-          </button>
-          
-          <button 
-            type="button" 
-            onClick={getCurrentLocation}
-            disabled={isLocating}
-            className="location-button"
-          >
-            {isLocating 
-              ? 'Detecting Location...' 
-              : `Search My Location: ${currentLocation || 'Click to Detect'}`}
-          </button>
+          <div className="flex flex-row gap-4 items-center justify-center">
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Enter a location"
+              required
+              className='flex-1'
+            />
+            <button type="submit" disabled={loading}>
+              {loading ? 'Discovering...' : 'Find Seasonal Wonders'}
+            </button>
+          </div>
         </form>
 
         {error && <div className="error-message">{error}</div>}
@@ -203,83 +372,72 @@ function App() {
                     <span>{getSeasonalGreeting()}</span>
                   </div>
                 </div>
-                
-                <div className="card-content">
-                  <div className="main-content">
-                    <div className="description-section">
-                      <p className="description">{rec.description}</p>
-                      <div className="activities-section">
-                        <h4>Activities & Tips</h4>
-                        <ul>
-                          {rec.activities.map((activity, i) => (
-                            <li key={i}>
-                              <span className="activity-icon">✨</span>
-                              {activity}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                <div className="main-content">
+                  {rec.image && (
+                    <div className="recommendation-image">
+                      <img 
+                        src={rec.image} 
+                        alt={`${rec.title} during ${getSeasonalGreeting()}`}
+                        className="seasonal-image"
+                      />
                     </div>
+                  )}
+                  <div className="description-section">
+                    <p className="description">{rec.description}</p>
+                  </div>
+                  
+                  <div className="activities-section">
+                    <h4>Activities & Tips</h4>
+                    <ul>
+                      {rec.activities.map((activity, i) => (
+                        <li key={i}>
+                          <span className="activity-icon">✨</span>
+                          {activity}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                    <div className="impact-section">
-                      <div className="impact-card environment">
-                        <div className="impact-header">
-                          <span className="impact-icon">🌱</span>
-                          <h6>Environmental Impact</h6>
-                        </div>
-                        <div className="carbon-footprint">
+                  <div className="impact-section">
+                    <div className="impact-card environment">
+                      <div className="impact-header">
+                        <span className="impact-icon">🌱</span>
+                        <h6>Environmental Impact</h6>
+                      </div>
+                      <ul>
+                        <li className="carbon-footprint">
                           <span>Carbon Footprint:</span>
                           <span className="footprint-value">{rec.carbonFootprint}</span>
-                        </div>
-                        <ul>
-                          {rec.ecoFriendlyTips.map((tip, i) => (
-                            <li key={i}>{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
+                        </li>
+                        {rec.ecoFriendlyTips.map((tip, i) => (
+                          <li key={i}>• {tip}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
 
-                      <div className="impact-card community">
-                        <div className="impact-header">
-                          <span className="impact-icon">🤝</span>
-                          <h6>Community Support</h6>
-                        </div>
-                        <ul>
-                          {rec.localPartners.map((partner, i) => (
-                            <li key={i}>Supporting {partner}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="impact-card health">
-                        <div className="impact-header">
-                          <span className="impact-icon">💪</span>
-                          <h6>Health Benefits</h6>
-                        </div>
-                        <ul>
-                          {rec.healthBenefits?.map((benefit, i) => (
-                            <li key={i}>{benefit}</li>
-                          ))}
-                        </ul>
-                      </div>
+                  <div className="details">
+                    <div className="detail-item">
+                      <span className="detail-label">Duration</span>
+                      <span className="detail-value">{rec.estimatedDuration}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Estimated Cost</span>
+                      <span className="detail-value">{rec.estimatedCost}</span>
                     </div>
                   </div>
 
                   <div className="action-section">
                     {rec.bookingLink && (
-                      <a 
-                        href={rec.bookingLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="booking-link"
-                      >
-                        Book Guided Experience
+                      <a href={rec.bookingLink} target="_blank" rel="noopener noreferrer" className="booking-link">
+                        Book Now
                       </a>
                     )}
                     <button 
-                      className="share-experience-button"
-                      onClick={() => setSelectedActivity(rec.title)}
+                      className="select-plan-button"
+                      onClick={() => handleSelectPlan(rec)}
                     >
-                      Share Your Experience
+                      Select Plan
                     </button>
                   </div>
                 </div>
@@ -288,21 +446,7 @@ function App() {
           </div>
         )}
 
-        {selectedActivity && (
-          <ExperienceFeedback
-            location={location}
-            activity={selectedActivity}
-            onFeedbackSubmit={handleFeedbackSubmit}
-          />
-        )}
-
-        {feedbacks.length > 0 && selectedActivity && (
-          <ExperienceGallery
-            location={location}
-            activity={selectedActivity}
-            feedbacks={feedbacks}
-          />
-        )}
+        {selectedPlan && <PlanDetailsView />}
       </main>
     </div>
   );

@@ -46,7 +46,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Seasonal Background Animation */
 body::before {
   content: '';
   position: fixed;
@@ -85,7 +84,7 @@ body::before {
   padding: 2rem;
   position: relative;
   z-index: 1;
-  background-color: rgba(255, 255, 255, 0.00);
+  background-color: rgba(255, 255, 255, 0.5);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.0);
   margin-top: 2rem;
@@ -95,14 +94,10 @@ body::before {
 
 .app-header {
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 3rem 2rem;
-  background-color: rgba(255, 255, 255, 0.00);
-  border-radius: 12px;
-  box-shadow: var(--card-shadow);
+  /* margin-bottom: 3rem; */
+  padding: 1rem 0;
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(8px);
 }
 
 .app-header::before {
@@ -150,10 +145,6 @@ body::before {
   max-width: 600px;
   margin: 0 auto 3rem;
   padding: 2rem;
-  background-color: rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(8px);
 }
 
 .location-form h2 {
@@ -171,7 +162,7 @@ body::before {
   font-size: 1.1rem;
   transition: all var(--transition-speed);
   font-family: 'Montserrat', sans-serif;
-  background-color: rgba(255, 255, 255, 0.85);
+  /* background-color: rgba(255, 255, 255, 0.85); */
 }
 
 .location-form input:focus {
@@ -207,42 +198,41 @@ body::before {
 }
 
 .recommendations {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+  padding: 1rem;
 }
 
 .recommendation-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .recommendation-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
 
 .card-header {
   padding: 1.5rem;
-  background: linear-gradient(135deg, rgba(139, 154, 125, 0.8), rgba(74, 123, 157, 0.8));
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
   color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(4px);
 }
 
 .card-header h3 {
   margin: 0;
   font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 
@@ -256,66 +246,42 @@ body::before {
   font-size: 0.9rem;
 }
 
-.season-icon {
-  font-size: 1.2rem;
-}
-
-.card-content {
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.1);
-}
-
 .main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  padding: 1.5rem;
 }
 
 .description-section {
-  font-family: 'Montserrat', sans-serif;
+  margin-bottom: 1.5rem;
 }
 
 .description {
-  font-size: 1.1rem;
+  color: var(--text-color);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.5rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-size: 1.1rem;
 }
 
 .activities-section {
-  background: rgba(74, 123, 157, 0.1);
-  padding: 1.5rem;
-  border-radius: 12px;
-  border-left: 4px solid rgba(74, 123, 157, 0.5);
-  backdrop-filter: blur(4px);
+  margin-bottom: 1.5rem;
 }
 
 .activities-section h4 {
-  font-family: 'Playfair Display', serif;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color);
+  font-size: 1.2rem;
   margin-bottom: 1rem;
-  font-size: 1.3rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-family: 'Playfair Display', serif;
 }
 
 .activities-section ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
 }
 
 .activities-section li {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.activities-section li:last-child {
-  border-bottom: none;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  color: var(--text-color);
 }
 
 .activity-icon {
@@ -324,88 +290,120 @@ body::before {
 }
 
 .impact-section {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .impact-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--eco-light);
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.2rem;
 }
 
 .impact-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .impact-icon {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .impact-card h6 {
+  color: var(--eco-secondary);
+  font-size: 1.1rem;
   margin: 0;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.95);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.impact-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.impact-card li {
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .carbon-footprint {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(46, 204, 113, 0.1);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  backdrop-filter: blur(4px);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .footprint-value {
   font-weight: 600;
-  color: var(--eco-primary);
+  color: var(--eco-secondary);
 }
 
-.impact-card ul {
-  list-style: none;
-  padding-left: 0;
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.impact-card li {
-  padding: 0.5rem 0;
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+
+.detail-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.detail-value::before {
+  content: '⏱️';
+  font-size: 1.1rem;
 }
 
 .action-section {
-  margin-top: 2rem;
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
+  justify-content: center;
+  margin-top: 1.5rem;
 }
 
 .booking-link {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: rgba(74, 123, 157, 0.8);
+  padding: 0.8rem 2rem;
+  background: var(--accent-color);
   color: white;
   text-decoration: none;
   border-radius: 8px;
   font-weight: 500;
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
+  text-align: center;
+  min-width: 150px;
 }
 
 .booking-link:hover {
@@ -414,20 +412,18 @@ body::before {
 }
 
 .share-experience-button {
-  padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--accent-color);
-  border: 2px solid rgba(74, 123, 157, 0.5);
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   font-weight: 500;
-  cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
 }
 
 .share-experience-button:hover {
-  background: rgba(74, 123, 157, 0.8);
-  color: white;
+  background: rgba(74, 123, 157, 0.9);
+  color: #fff;
   transform: translateY(-2px);
 }
 
@@ -448,7 +444,6 @@ body::before {
 }
 
 .location-button {
-  margin-top: 1rem;
   padding: 0.75rem 1.5rem;
   background-color: #4a90e2;
   color: white;
@@ -457,7 +452,6 @@ body::before {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  width: 100%;
   max-width: 300px;
   display: block;
   margin-left: auto;
@@ -490,7 +484,17 @@ body::before {
     padding: 1.5rem;
   }
 
-  .main-content {
+  .recommendations {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .details {
     grid-template-columns: 1fr;
   }
   
@@ -664,26 +668,6 @@ body::before {
 .tips p {
   margin: 0;
   line-height: 1.6;
-}
-
-.carbon-footprint {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: rgba(46, 204, 113, 0.1);
-  border-radius: 8px;
-  border-left: 4px solid var(--eco-primary);
-}
-
-.footprint-icon {
-  font-size: 1.5rem;
-}
-
-.footprint-value {
-  font-weight: 500;
-  color: var(--eco-secondary);
 }
 
 .environmental-impact {
@@ -904,4 +888,453 @@ body::before {
   content: '✓';
   color: var(--eco-primary);
   font-weight: bold;
+}
+
+.select-plan-button {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.select-plan-button:hover {
+  background: var(--accent-color);
+  transform: translateY(-2px);
+}
+
+.plan-details {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.plan-header h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--primary-color);
+  font-size: 2rem;
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.plan-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.location-section,
+.time-section,
+.waypoints-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.location-section h3,
+.time-section h3,
+.waypoints-section h3 {
+  color: var(--primary-color);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 1rem;
+}
+
+.location-input {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.location-input input {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.time-section input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.waypoints-section {
+  margin-top: 2rem;
+}
+
+.waypoints-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.waypoint-item {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.waypoint-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.waypoint-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.waypoint-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.type-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.duration {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.seasonal-badge {
+  background: #fff3e0;
+  color: #f57c00;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.waypoint-description {
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.seasonal-details {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fff3e0;
+  border-radius: 8px;
+  color: #f57c00;
+  font-size: 0.875rem;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.save-plan,
+.share-plan {
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-plan {
+  background: var(--primary-color);
+  color: white;
+}
+
+.save-plan:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.share-plan {
+  background: var(--accent-color);
+  color: white;
+}
+
+.save-plan:hover:not(:disabled),
+.share-plan:hover {
+  transform: translateY(-2px);
+}
+
+.share-link-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.share-link-container p {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.share-link {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.share-link-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  color: #333;
+}
+
+.copy-link-button {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.copy-link-button:hover {
+  background: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .plan-details {
+    padding: 1rem;
+  }
+
+  .location-input {
+    flex-direction: column;
+  }
+
+  .plan-actions {
+    flex-direction: column;
+  }
+
+  .save-plan,
+  .share-plan {
+    width: 100%;
+  }
+}
+
+.timeline-section {
+  margin-top: 2rem;
+}
+
+.timeline {
+  position: relative;
+  padding: 2rem 0;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  height: 100%;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+  padding-left: 3rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 1.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.timeline-content {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.timeline-content::before {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  top: 1.5rem;
+  width: 1rem;
+  height: 1rem;
+  background: white;
+  transform: rotate(45deg);
+  box-shadow: -2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.waypoint-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.waypoint-header h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.waypoint-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.type-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.duration {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.seasonal-badge {
+  background: #fff3e0;
+  color: #f57c00;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.waypoint-description {
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.seasonal-details {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #fff3e0;
+  border-radius: 8px;
+  color: #f57c00;
+  font-size: 0.875rem;
+}
+
+.waypoint-image {
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.seasonal-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.seasonal-image:hover {
+  transform: scale(1.02);
+}
+
+.travel-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.travel-info p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.travel-duration {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.recommendation-image {
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-image img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-image img:hover {
+  transform: scale(1.02);
 }

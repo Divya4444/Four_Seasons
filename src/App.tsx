@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAdventureRecommendations } from './utils/geminiApi';
 import { geminiClient } from './utils/butterflyClient';
+import { ExperienceFeedback } from './components/ExperienceFeedback';
+import { ExperienceGallery } from './components/ExperienceGallery';
 import './App.css';
 
 interface Recommendation {
@@ -28,6 +30,16 @@ interface Recommendation {
     estimatedTime: number;
     automationAvailable: boolean;
   }>;
+  healthBenefits?: string[];
+}
+
+interface Feedback {
+  images: File[];
+  description: string;
+  weather: string;
+  crowdLevel: 'low' | 'medium' | 'high';
+  tips: string;
+  timestamp: string;
 }
 
 function App() {
@@ -36,6 +48,8 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userId] = useState(() => crypto.randomUUID());
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<string | null>(null);
   const [currentLocation, setCurrentLocation] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
@@ -90,6 +104,10 @@ function App() {
     return "Winter's quiet beauty awaits";
   };
 
+  const handleFeedbackSubmit = (feedback: Feedback) => {
+    setFeedbacks([...feedbacks, feedback]);
+  };
+
   const getCurrentLocation = async () => {
     setIsLocating(true);
     try {
@@ -135,7 +153,7 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Nature's Calendar</h1>
+        <h1>4 Seasons</h1>
         <p>{getSeasonalGreeting()}. Let's discover the seasonal wonders around you.</p>
       </header>
 
@@ -146,7 +164,7 @@ function App() {
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Enter a city, park, or natural area..."
+            placeholder="What's up with you?"
             required
           />
           <button type="submit" disabled={loading}>
@@ -178,45 +196,112 @@ function App() {
           <div className="recommendations">
             {recommendations.map((rec, index) => (
               <div key={index} className="recommendation-card">
-                <h3>{rec.title}</h3>
-                <p className="description">{rec.description}</p>
-                
-                <div className="seasonal-highlight">
-                  <h4>Best Time to Experience</h4>
-                  <p>{rec.estimatedDuration}</p>
+                <div className="card-header">
+                  <h3>{rec.title}</h3>
+                  <div className="seasonal-badge">
+                    <span className="season-icon">🌿</span>
+                    <span>{getSeasonalGreeting()}</span>
+                  </div>
                 </div>
                 
-                <div className="details">
-                  <h4>Viewing Tips</h4>
-                  <ul>
-                    {rec.activities.map((activity, i) => (
-                      <li key={i}>{activity}</li>
-                    ))}
-                  </ul>
-                </div>
+                <div className="card-content">
+                  <div className="main-content">
+                    <div className="description-section">
+                      <p className="description">{rec.description}</p>
+                      <div className="activities-section">
+                        <h4>Activities & Tips</h4>
+                        <ul>
+                          {rec.activities.map((activity, i) => (
+                            <li key={i}>
+                              <span className="activity-icon">✨</span>
+                              {activity}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
 
-                <div className="eco-friendly-tips">
-                  <h4>Eco-Friendly Tips</h4>
-                  <ul>
-                    {rec.ecoFriendlyTips.map((tip, i) => (
-                      <li key={i}>{tip}</li>
-                    ))}
-                  </ul>
-                </div>
+                    <div className="impact-section">
+                      <div className="impact-card environment">
+                        <div className="impact-header">
+                          <span className="impact-icon">🌱</span>
+                          <h6>Environmental Impact</h6>
+                        </div>
+                        <div className="carbon-footprint">
+                          <span>Carbon Footprint:</span>
+                          <span className="footprint-value">{rec.carbonFootprint}</span>
+                        </div>
+                        <ul>
+                          {rec.ecoFriendlyTips.map((tip, i) => (
+                            <li key={i}>{tip}</li>
+                          ))}
+                        </ul>
+                      </div>
 
-                {rec.bookingLink && (
-                  <a 
-                    href={rec.bookingLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="booking-link"
-                  >
-                    Book Guided Experience
-                  </a>
-                )}
+                      <div className="impact-card community">
+                        <div className="impact-header">
+                          <span className="impact-icon">🤝</span>
+                          <h6>Community Support</h6>
+                        </div>
+                        <ul>
+                          {rec.localPartners.map((partner, i) => (
+                            <li key={i}>Supporting {partner}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="impact-card health">
+                        <div className="impact-header">
+                          <span className="impact-icon">💪</span>
+                          <h6>Health Benefits</h6>
+                        </div>
+                        <ul>
+                          {rec.healthBenefits?.map((benefit, i) => (
+                            <li key={i}>{benefit}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="action-section">
+                    {rec.bookingLink && (
+                      <a 
+                        href={rec.bookingLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="booking-link"
+                      >
+                        Book Guided Experience
+                      </a>
+                    )}
+                    <button 
+                      className="share-experience-button"
+                      onClick={() => setSelectedActivity(rec.title)}
+                    >
+                      Share Your Experience
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
+        )}
+
+        {selectedActivity && (
+          <ExperienceFeedback
+            location={location}
+            activity={selectedActivity}
+            onFeedbackSubmit={handleFeedbackSubmit}
+          />
+        )}
+
+        {feedbacks.length > 0 && selectedActivity && (
+          <ExperienceGallery
+            location={location}
+            activity={selectedActivity}
+            feedbacks={feedbacks}
+          />
         )}
       </main>
     </div>

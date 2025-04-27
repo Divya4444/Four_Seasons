@@ -12,7 +12,7 @@
   --winter-secondary: #B8D4E3;
 
   /* Eco Colors */
-  --eco-primary: #2ecc71;
+  --eco-primary: #1eb85eda;
   --eco-secondary: #27ae60;
   --eco-light: rgba(46, 204, 113, 0.1);
 
@@ -97,7 +97,7 @@ body::before {
   text-align: center;
   margin-bottom: 3rem;
   padding: 3rem 2rem;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.00);
   border-radius: 12px;
   box-shadow: var(--card-shadow);
   position: relative;
@@ -171,7 +171,7 @@ body::before {
   font-size: 1.1rem;
   transition: all var(--transition-speed);
   font-family: 'Montserrat', sans-serif;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.85);
 }
 
 .location-form input:focus {
@@ -214,137 +214,220 @@ body::before {
 }
 
 .recommendation-card {
-  background-color: rgba(255, 255, 255, 0.85);
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: var(--card-shadow);
-  transition: all var(--transition-speed);
-  border-left: 4px solid var(--accent-color);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .recommendation-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85);
 }
 
-.recommendation-card h3 {
+.card-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(139, 154, 125, 0.8), rgba(74, 123, 157, 0.8));
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+.card-header h3 {
+  margin: 0;
   font-family: 'Playfair Display', serif;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
   font-size: 1.8rem;
   font-weight: 600;
 }
 
-.recommendation-card .description {
-  color: var(--text-color);
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-  line-height: 1.8;
-}
-
-.seasonal-highlight {
-  background-color: rgba(74, 123, 157, 0.1);
-  border-left: 4px solid var(--accent-color);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  border-radius: 0 8px 8px 0;
-}
-
-.seasonal-highlight h4 {
-  font-family: 'Playfair Display', serif;
-  color: var(--accent-color);
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
-}
-
-.seasonal-highlight p {
-  color: var(--text-color);
-  font-size: 1.1rem;
-}
-
-.details {
-  margin-top: 2rem;
-}
-
-.details h4 {
-  font-family: 'Playfair Display', serif;
-  color: var(--primary-color);
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
-}
-
-.details ul {
-  list-style: none;
-  margin-bottom: 1.5rem;
-}
-
-.details li {
-  padding: 0.8rem 0;
-  color: var(--text-color);
-  font-size: 1.1rem;
-  border-bottom: 1px solid var(--border-color);
+.seasonal-badge {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
 }
 
-.details li:last-child {
+.season-icon {
+  font-size: 1.2rem;
+}
+
+.card-content {
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.description-section {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.activities-section {
+  background: rgba(74, 123, 157, 0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid rgba(74, 123, 157, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.activities-section h4 {
+  font-family: 'Playfair Display', serif;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.activities-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.activities-section li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.activities-section li:last-child {
   border-bottom: none;
 }
 
-.details li::before {
-  content: '•';
+.activity-icon {
   color: var(--accent-color);
-  margin-right: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.impact-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.impact-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.impact-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.impact-icon {
   font-size: 1.5rem;
 }
 
-.eco-friendly-tips {
-  background-color: var(--eco-light);
-  border-left: 4px solid var(--eco-primary);
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-  border-radius: 0 8px 8px 0;
-}
-
-.eco-friendly-tips h4 {
+.impact-card h6 {
+  margin: 0;
   font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.carbon-footprint {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(46, 204, 113, 0.1);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(4px);
+}
+
+.footprint-value {
+  font-weight: 600;
   color: var(--eco-primary);
-  margin-bottom: 0.5rem;
-  font-size: 1.3rem;
 }
 
-.eco-friendly-tips ul {
+.impact-card ul {
   list-style: none;
+  padding-left: 0;
 }
 
-.eco-friendly-tips li {
-  color: var(--eco-secondary);
+.impact-card li {
   padding: 0.5rem 0;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.eco-friendly-tips li::before {
-  content: '🌱';
-  margin-right: 0.8rem;
+.action-section {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
 }
 
 .booking-link {
   display: inline-block;
-  margin-top: 1.5rem;
-  padding: 0.8rem 1.5rem;
-  background-color: var(--accent-color);
+  padding: 0.75rem 1.5rem;
+  background: rgba(74, 123, 157, 0.8);
   color: white;
   text-decoration: none;
   border-radius: 8px;
-  transition: all var(--transition-speed);
   font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
 }
 
 .booking-link:hover {
-  background-color: var(--primary-color);
+  background: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.share-experience-button {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-color);
+  border: 2px solid rgba(74, 123, 157, 0.5);
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.share-experience-button:hover {
+  background: rgba(74, 123, 157, 0.8);
+  color: white;
   transform: translateY(-2px);
 }
 
@@ -407,7 +490,418 @@ body::before {
     padding: 1.5rem;
   }
 
-  .recommendation-card {
-    padding: 1.5rem;
+  .main-content {
+    grid-template-columns: 1fr;
   }
+  
+  .action-section {
+    flex-direction: column;
+  }
+  
+  .booking-link,
+  .share-experience-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Feedback Form Styles */
+.feedback-form {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 12px;
+  margin: 2rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-form h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.image-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.preview-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+}
+
+.form-group textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+}
+
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+}
+
+.submit-button {
+  background: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background: var(--accent-color);
+}
+
+/* Experience Gallery Styles */
+.experience-gallery {
+  margin: 2rem 0;
+}
+
+.feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.feedback-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.gallery-image:hover {
+  transform: scale(1.05);
+}
+
+.feedback-details {
+  padding: 1.5rem;
+}
+
+.feedback-details .description {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.metadata span {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+}
+
+.tips {
+  background: rgba(76, 175, 80, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.tips h4 {
+  color: var(--success-color);
+  margin-bottom: 0.5rem;
+}
+
+.tips p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.carbon-footprint {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(46, 204, 113, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid var(--eco-primary);
+}
+
+.footprint-icon {
+  font-size: 1.5rem;
+}
+
+.footprint-value {
+  font-weight: 500;
+  color: var(--eco-secondary);
+}
+
+.environmental-impact {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(46, 204, 113, 0.05);
+  border-radius: 8px;
+}
+
+.environmental-impact h5 {
+  color: var(--eco-primary);
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.environmental-impact p {
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.environmental-impact ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.environmental-impact li {
+  color: var(--eco-secondary);
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.environmental-impact li::before {
+  content: '✓';
+  color: var(--eco-primary);
+  font-weight: bold;
+}
+
+.sustainable-practices {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(46, 204, 113, 0.05);
+  border-radius: 8px;
+}
+
+.sustainable-practices h5 {
+  color: var(--eco-primary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.principles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.principle-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--eco-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.principle-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.principle-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-color);
+}
+
+.sustainability-checklist {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(46, 204, 113, 0.05);
+  border-radius: 8px;
+}
+
+.sustainability-checklist h5 {
+  color: var(--eco-primary);
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.sustainability-checklist ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.sustainability-checklist li {
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.sustainability-checklist li.low {
+  border-left: 3px solid var(--success-color);
+}
+
+.sustainability-checklist li.medium {
+  border-left: 3px solid var(--warning-color);
+}
+
+.sustainability-checklist li.high {
+  border-left: 3px solid var(--error-color);
+}
+
+.check-icon {
+  color: var(--eco-primary);
+  font-weight: bold;
+}
+
+.automation-badge {
+  margin-left: auto;
+  padding: 0.25rem 0.5rem;
+  background: var(--eco-light);
+  color: var(--eco-primary);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.impact-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid var(--eco-primary);
+}
+
+.impact-card h6 {
+  color: var(--eco-primary);
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.impact-card ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.impact-card li {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.impact-card.environment {
+  border-left-color: var(--eco-primary);
+}
+
+.impact-card.community {
+  border-left-color: #4A7B9D;
+}
+
+.impact-card.health {
+  border-left-color: #8B9A7D;
+}
+
+.impact-summary {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(46, 204, 113, 0.05);
+  border-radius: 8px;
+}
+
+.impact-summary p {
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.impact-summary ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.impact-summary li {
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-color);
+}
+
+.impact-summary li::before {
+  content: '✓';
+  color: var(--eco-primary);
+  font-weight: bold;
 }

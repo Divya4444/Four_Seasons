@@ -220,51 +220,61 @@ export async function getAdventureRecommendations(
     const isEvening = currentTime.getHours() >= 17;
     const currentMonth = currentTime.getMonth() + 1;
 
-    const prompt = `As an AI concierge, suggest personalized seasonal activities in ${location}. Consider:
+    const prompt = `Generate 3 unique outdoor adventure recommendations for ${location} that highlight seasonal natural phenomena. 
+For each recommendation, provide:
 
-Seasonal Context:
-- Current Month: ${currentMonth}
-- Time: ${isWeekend ? 'Weekend' : 'Weekday'} ${isEvening ? 'Evening' : 'Daytime'}
-- Location: ${location}
+1. Title and Description: A captivating title and detailed description of the experience
+2. Activities: 3-5 specific activities or viewing tips
+3. Timing: Best time to experience (including specific months or conditions)
+4. Environmental Impact:
+   - Carbon footprint estimate
+   - Specific ways this activity helps the environment
+   - Local conservation efforts it supports
+   - How it contributes to biodiversity
+5. Community Impact:
+   - Local businesses and artisans supported
+   - Cultural heritage preserved
+   - Community initiatives benefited
+   - Educational opportunities created
+6. Health Benefits:
+   - Physical health improvements
+   - Mental wellness aspects
+   - Stress reduction elements
+   - Connection with nature benefits
+7. Sustainable Practices:
+   - Leave No Trace principles specific to this location
+   - Eco-friendly transportation options
+   - Waste reduction strategies
+   - Resource conservation tips
+8. Booking: Optional booking link for guided experiences
 
-Focus on:
-1. Seasonal natural phenomena (blooms, migrations, wildlife activity)
-2. Local seasonal events and festivals
-3. Best times to observe specific natural features
-4. Eco-friendly ways to experience the season
-5. Local conservation efforts and volunteer opportunities
-
-IMPORTANT: Return ONLY a valid JSON array, without any markdown formatting or additional text. The response should start with [ and end with ].
-
-Format your response as a JSON array (minimum 3 items, maximum 5 items). Each item must include:
+Format the response as a JSON array with these properties:
 {
-  "title": "Seasonal Event/Activity name",
-  "description": "Detailed description of the seasonal phenomenon and its significance",
-  "activities": ["Specific viewing tips 1", "Specific viewing tips 2", "Specific viewing tips 3"],
-  "estimatedDuration": "Best time window for viewing",
-  "carbonFootprint": "High / Medium / Low with brief reason",
-  "ecoFriendlyTips": ["Conservation tip 1", "Conservation tip 2", "Conservation tip 3"],
-  "estimatedCost": "Cost range (if any)",
-  "bookingLink": "URL for guided tours or events if available",
-  "localPartners": ["Local expert 1", "Local organization 2"],
-  "premiumFeatures": ["Feature 1", "Feature 2"],
-  "automationOptions": {
-    "autoBooking": true,
-    "paymentProcessing": true,
-    "reminderSetup": true,
-    "groupCoordination": true
-  },
-  "followUpQuestions": ["Question 1", "Question 2"],
-  "personalizedTips": ["Viewing tip 1", "Viewing tip 2"],
-  "nextSteps": [
-    {
-      "action": "Specific action to take",
-      "priority": "low",
-      "estimatedTime": 30,
-      "automationAvailable": true
-    }
-  ]
-}`;
+  "title": string,
+  "description": string,
+  "activities": string[],
+  "estimatedDuration": string,
+  "carbonFootprint": string,
+  "ecoFriendlyTips": string[],
+  "localPartners": string[],
+  "healthBenefits": string[],
+  "personalizedTips": string[],
+  "nextSteps": Array<{
+    "action": string,
+    "priority": "low" | "medium" | "high",
+    "estimatedTime": number,
+    "automationAvailable": boolean
+  }>,
+  "bookingLink"?: string
+}
+
+Focus on creating recommendations that:
+- Showcase unique seasonal aspects of ${location}
+- Highlight sustainable tourism practices
+- Support local communities and conservation
+- Promote physical and mental well-being
+- Educate about environmental stewardship
+- Create meaningful connections with nature`;
 
     const response = await geminiClient.generateRecommendation(prompt);
     
